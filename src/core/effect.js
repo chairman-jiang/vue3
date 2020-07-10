@@ -2,9 +2,12 @@ import { isArray } from "@/helpers/utils";
 
 const targetMap = new WeakMap();
 
-export function effect(fn, options) {
+export function effect(fn, options = {}) {
   const effect = createReactiveEffect(fn, options)
   // ...
+  if (!options.lazy) {
+    effect()
+  }
   return effect;
 };
 
@@ -71,6 +74,7 @@ function createReactiveEffect(fn, options) {
  */
 
 export function track(target, type, key) {
+  console.log(target, 'track')
   // 如果当前没有执行的effect, 就不要继续收集依赖了
   if (activeEffect === undefined) {
     return;
@@ -108,9 +112,9 @@ export function trigger(target, type, key, newValue) {
       effectToAdd.forEach(effect => {
         if (effect !== activeEffect) {
           if (effect.options.computed) {
-            computedEffects.push(effect);
+            computedEffects.add(effect);
           } else {
-            effects.push(effect)
+            effects.add(effect)
           }
         }
       });
@@ -139,6 +143,7 @@ export function trigger(target, type, key, newValue) {
     // ... 其他事情
     effect()
   }
+  console.log(effects, 'trigger')
   // 计算属性
   computedEffects.forEach(run)
   // 普通effect

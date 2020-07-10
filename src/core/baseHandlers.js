@@ -9,7 +9,7 @@ function createGetter() {
       return reactive(result)
     }
     track(target, 'add' , propKey)
-    console.log('getter', target, propKey);
+    // console.log('getter', target, propKey);
     return result;
   }
 }
@@ -20,13 +20,13 @@ function createSetter() {
     const oldValue = Reflect.get(target, propKey);
     const result = Reflect.set(target, propKey, value, receiver);
     if (!hadKey) {
-      console.log('新增属性')
+      // console.log('新增属性')
       trigger(target, 'add', propKey, value)
     } else if (oldValue !== value) {
-      console.log('修改');
+      // console.log('修改');
       trigger(target, 'set', propKey, value)
     }
-    console.log('setter', target, propKey, value);
+    // console.log('setter', target, propKey, value);
     return result;
   }
 }
