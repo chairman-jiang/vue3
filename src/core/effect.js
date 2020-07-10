@@ -136,6 +136,9 @@ export function trigger(target, type, key, newValue) {
       // 存入
       add(depsMap.get(key))
     }
+    if (type === 'add') {
+      add(depsMap.get(isArray(target) ? 'length' : ''))
+    }
     // ...
   }
 
