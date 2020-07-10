@@ -1,5 +1,6 @@
 import { isObject } from "@/helpers/utils";
 import { reactive } from "./reactive";
+import { trigger, track } from "./effect";
 
 function createGetter() {
   return function get(target, propKey, receiver) {
@@ -7,6 +8,7 @@ function createGetter() {
     if (isObject(result)) {
       return reactive(result)
     }
+    track(target, 'add' , propKey)
     console.log('getter', target, propKey);
     return result;
   }
@@ -19,8 +21,10 @@ function createSetter() {
     const result = Reflect.set(target, propKey, value, receiver);
     if (!hadKey) {
       console.log('新增属性')
+      trigger(target, 'add', propKey, value)
     } else if (oldValue !== value) {
       console.log('修改');
+      trigger(target, 'set', propKey, value)
     }
     console.log('setter', target, propKey, value);
     return result;

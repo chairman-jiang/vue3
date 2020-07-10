@@ -1,3 +1,5 @@
+import { isArray } from "@/helpers/utils";
+
 const targetMap = new WeakMap();
 
 export function effect(fn, options) {
@@ -90,16 +92,55 @@ export function track(target, type, key) {
   }
 }
 
-export function trigger(target, type, key) {
+export function trigger(target, type, key, newValue) {
+  let depsMap = targetMap.get(target)
+  if (!depsMap) {
+    return;
+  }
   let computedEffects = new Set()
   let effects = new Set()
-  let add = () => {
-
+  /**
+   * @param {Set<effect>} effectToAdd
+   * @description 循环effect集合, 并添加到对应Set集合中
+   */
+  let add = (effectToAdd) => {
+    if (effectToAdd) {
+      effectToAdd.forEach(effect => {
+        if (effect !== activeEffect) {
+          if (effect.options.computed) {
+            computedEffects.push(effect);
+          } else {
+            effects.push(effect)
+          }
+        }
+      });
+    }
   }
   if (type === 'clear') {
-    
+    // run all effect
+    depsMap.forEach(add)
+  } else if (key === 'length' && isArray(target)) {
+    // 处理数组
+    depsMap.forEach((dep, key) => {
+      // key(Set): [effect, effect]
+      if (key === 'length' || key >= newValue) {
+        add(dep)
+      }
+    })
   } else {
-
+    if (key !== void 0) {
+      // 存入
+      add(depsMap.get(key))
+    }
+    // ...
   }
 
+  const run = (effect) => {
+    // ... 其他事情
+    effect()
+  }
+  // 计算属性
+  computedEffects.forEach(run)
+  // 普通effect
+  effects.forEach(run)
 }
