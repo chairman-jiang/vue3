@@ -5,12 +5,12 @@ import { trigger, track } from "./effect";
 function createGetter() {
   return function get(target, propKey, receiver) {
     const result = Reflect.get(target, propKey, receiver);
+    track(target, 'add' , propKey)
     // 访问内部属性.如果依然的对象就继续代理
     if (isObject(result)) {
       return reactive(result)
     }
-    track(target, 'add' , propKey)
-    // console.log('getter', target, propKey);
+    // console.log('getter', target, propKey, 'get');
     return result;
   }
 }

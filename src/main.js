@@ -1,20 +1,9 @@
-import { reactive, effect } from './core'
+import { reactive, computed } from './core'
 
-const obj = reactive({ name: '456', age: 10 });
+const obj = reactive({ name: '456', age: 10, friends: ['tom', 'chris'] });
 
-effect(() => {
-  console.log(obj.name, 'effect');
-})
-
-effect(() => {
-  console.log(obj.name, 'effect2');
-})
+const val = computed(() => obj.age + 1)
 
 setTimeout(() => {
-  obj.name = '请问'
-  console.log('timeout')
-}, 3000);
-
-// setTimeout(() => {
-//   console.log(obj.name, 'name');
-// }, 3000)
+  console.log(val.value, 'val')
+}, 1000);

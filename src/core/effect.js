@@ -74,11 +74,12 @@ function createReactiveEffect(fn, options) {
  */
 
 export function track(target, type, key) {
-  console.log(target, 'track')
+  console.log(target, 'asd')
   // 如果当前没有执行的effect, 就不要继续收集依赖了
   if (activeEffect === undefined) {
     return;
   }
+  console.log(target, Reflect.has(target, 'effect'), 'isHas')
   let depsMap = targetMap.get(target);
   if (!depsMap) {
     targetMap.set(target, (depsMap = new Map()))
@@ -94,6 +95,7 @@ export function track(target, type, key) {
     activeEffect.deps.push(dep)
     // 这是一次双向依赖绑定
   }
+  // console.log(depsMap, 'map');
 }
 
 export function trigger(target, type, key, newValue) {
@@ -137,16 +139,20 @@ export function trigger(target, type, key, newValue) {
       add(depsMap.get(key))
     }
     if (type === 'add') {
+      // 如果是新增并且target是数组需要对 [1, 2, 3]
       add(depsMap.get(isArray(target) ? 'length' : ''))
     }
     // ...
   }
 
   const run = (effect) => {
-    // ... 其他事情
-    effect()
+    // 计算属性
+    if (effect.options.scheduler) {
+      effect.options.scheduler();
+    } else {
+      effect()
+    }
   }
-  console.log(effects, 'trigger')
   // 计算属性
   computedEffects.forEach(run)
   // 普通effect
